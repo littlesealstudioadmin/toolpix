@@ -106,6 +106,13 @@ export async function compressImage(
 
 // Convert image format
 export type ImageFormat = "image/png" | "image/jpeg" | "image/webp";
+export type RotateAngle = 0 | 90 | 180 | 270;
+export type WatermarkPosition =
+  | "top-left"
+  | "top-right"
+  | "center"
+  | "bottom-left"
+  | "bottom-right";
 
 export async function convertImage(
   file: File,
@@ -160,6 +167,164 @@ export async function cropImage(
       }
       resolve(blob);
     }, file.type || "image/png", 0.92);
+  });
+}
+
+export async function transformImage(
+  file: File,
+  angle: RotateAngle,
+  flipHorizontal: boolean,
+  flipVertical: boolean
+): Promise<Blob> {
+  const img = await createImageElement(file);
+  const swapsDimensions = angle === 90 || angle === 270;
+  const canvas = document.createElement("canvas");
+  canvas.width = swapsDimensions ? img.naturalHeight : img.naturalWidth;
+  canvas.height = swapsDimensions ? img.naturalWidth : img.naturalHeight;
+
+  const ctx = canvas.getContext("2d")!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.rotate((angle * Math.PI) / 180);
+  ctx.scale(flipHorizontal ? -1 : 1, flipVertical ? -1 : 1);
+  ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+
+  return canvasToBlob(canvas, file.type || "image/png", 0.92, "Failed to transform image");
+}
+
+export interface WatermarkOptions {
+  text: string;
+  position: WatermarkPosition;
+  fontSize: number;
+  opacity: number;
+  color: string;
+}
+
+export async function addTextWatermark(
+  file: File,
+  options: WatermarkOptions
+): Promise<Blob> {
+  const img = await createImageElement(file);
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(img, 0, 0);
+
+  const margin = Math.max(24, Math.round(Math.min(canvas.width, canvas.height) * 0.04));
+  ctx.font = `600 ${options.fontSize}px "Plus Jakarta Sans", system-ui, sans-serif`;
+  ctx.fillStyle = options.color;
+  ctx.globalAlpha = options.opacity;
+  ctx.textBaseline = "middle";
+
+  const metrics = ctx.measureText(options.text);
+  const textHeight = options.fontSize;
+  const xByPosition: Record<WatermarkPosition, number> = {
+    "top-left": margin,
+    "top-right": canvas.width - margin - metrics.width,
+    center: (canvas.width - metrics.width) / 2,
+    "bottom-left": margin,
+    "bottom-right": canvas.width - margin - metrics.width,
+  };
+  const yByPosition: Record<WatermarkPosition, number> = {
+    "top-left": margin + textHeight / 2,
+    "top-right": margin + textHeight / 2,
+    center: canvas.height / 2,
+    "bottom-left": canvas.height - margin - textHeight / 2,
+    "bottom-right": canvas.height - margin - textHeight / 2,
+  };
+
+  ctx.fillText(options.text, xByPosition[options.position], yByPosition[options.position]);
+  ctx.globalAlpha = 1;
+
+  return canvasToBlob(canvas, file.type || "image/png", 0.92, "Failed to add watermark");
+}
+
+export async function stripImageMetadata(file: File): Promise<Blob> {
+  const img = await createImageElement(file);
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d")!;
+
+  if (file.type === "image/jpeg") {
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  ctx.drawImage(img, 0, 0);
+  const outputType = file.type === "image/webp" ? "image/webp" : file.type === "image/png" ? "image/png" : "image/jpeg";
+  return canvasToBlob(canvas, outputType, 0.95, "Failed to remove metadata");
+}
+
+export async function renderSquareIcon(file: File, size: number): Promise<Blob> {
+  const img = await createImageElement(file);
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
+  const sourceSize = Math.min(img.naturalWidth, img.naturalHeight);
+  const sx = (img.naturalWidth - sourceSize) / 2;
+  const sy = (img.naturalHeight - sourceSize) / 2;
+  ctx.clearRect(0, 0, size, size);
+  ctx.drawImage(img, sx, sy, sourceSize, sourceSize, 0, 0, size, size);
+
+  return canvasToBlob(canvas, "image/png", 0.92, "Failed to create icon");
+}
+
+export async function createPngIco(file: File, sizes: number[] = [16, 32, 48]): Promise<Blob> {
+  const pngs = await Promise.all(sizes.map(async (size) => ({
+    size,
+    bytes: new Uint8Array(await (await renderSquareIcon(file, size)).arrayBuffer()),
+  })));
+
+  const headerSize = 6;
+  const directorySize = 16 * pngs.length;
+  const totalSize = headerSize + directorySize + pngs.reduce((sum, item) => sum + item.bytes.length, 0);
+  const buffer = new ArrayBuffer(totalSize);
+  const view = new DataView(buffer);
+  const bytes = new Uint8Array(buffer);
+
+  view.setUint16(0, 0, true);
+  view.setUint16(2, 1, true);
+  view.setUint16(4, pngs.length, true);
+
+  let imageOffset = headerSize + directorySize;
+  pngs.forEach((item, index) => {
+    const entryOffset = headerSize + index * 16;
+    view.setUint8(entryOffset, item.size >= 256 ? 0 : item.size);
+    view.setUint8(entryOffset + 1, item.size >= 256 ? 0 : item.size);
+    view.setUint8(entryOffset + 2, 0);
+    view.setUint8(entryOffset + 3, 0);
+    view.setUint16(entryOffset + 4, 1, true);
+    view.setUint16(entryOffset + 6, 32, true);
+    view.setUint32(entryOffset + 8, item.bytes.length, true);
+    view.setUint32(entryOffset + 12, imageOffset, true);
+    bytes.set(item.bytes, imageOffset);
+    imageOffset += item.bytes.length;
+  });
+
+  return new Blob([buffer], { type: "image/x-icon" });
+}
+
+function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  type: string,
+  quality: number,
+  errorMessage: string
+): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error(errorMessage));
+        return;
+      }
+      resolve(blob);
+    }, type, quality);
   });
 }
 

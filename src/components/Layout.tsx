@@ -8,6 +8,10 @@ const navLinks = [
   { href: "/compress", label: "Compress" },
   { href: "/convert", label: "Convert" },
   { href: "/crop", label: "Crop" },
+  { href: "/rotate", label: "Rotate" },
+  { href: "/watermark", label: "Watermark" },
+  { href: "/exif", label: "EXIF" },
+  { href: "/favicon", label: "Favicon" },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -29,12 +33,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-0.5">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   location === link.href
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -109,6 +113,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <li><Link href="/compress" className="hover:text-foreground transition-colors">Image Compress</Link></li>
                 <li><Link href="/convert" className="hover:text-foreground transition-colors">Format Convert</Link></li>
                 <li><Link href="/crop" className="hover:text-foreground transition-colors">Image Crop</Link></li>
+                <li><Link href="/rotate" className="hover:text-foreground transition-colors">Rotate & Flip</Link></li>
+                <li><Link href="/watermark" className="hover:text-foreground transition-colors">Watermark</Link></li>
+                <li><Link href="/exif" className="hover:text-foreground transition-colors">Remove EXIF</Link></li>
+                <li><Link href="/favicon" className="hover:text-foreground transition-colors">Favicon Generator</Link></li>
               </ul>
             </div>
             <div>

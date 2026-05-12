@@ -9,6 +9,10 @@ import ResizeTool from "./pages/ResizeTool";
 import CompressTool from "./pages/CompressTool";
 import ConvertTool from "./pages/ConvertTool";
 import CropTool from "./pages/CropTool";
+import ExifTool from "./pages/ExifTool";
+import FaviconTool from "./pages/FaviconTool";
+import RotateTool from "./pages/RotateTool";
+import WatermarkTool from "./pages/WatermarkTool";
 import Layout from "./components/Layout";
 
 function Router() {
@@ -20,6 +24,10 @@ function Router() {
         <Route path="/compress" component={CompressTool} />
         <Route path="/convert" component={ConvertTool} />
         <Route path="/crop" component={CropTool} />
+        <Route path="/rotate" component={RotateTool} />
+        <Route path="/watermark" component={WatermarkTool} />
+        <Route path="/exif" component={ExifTool} />
+        <Route path="/favicon" component={FaviconTool} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

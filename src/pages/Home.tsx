@@ -7,7 +7,19 @@
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { Maximize2, Minimize2, RefreshCw, Crop, Shield, Zap, Globe } from "lucide-react";
+import {
+  BadgeIcon,
+  Crop,
+  Eraser,
+  Globe,
+  Maximize2,
+  Minimize2,
+  RefreshCw,
+  RotateCw,
+  Shield,
+  Stamp,
+  Zap,
+} from "lucide-react";
 import SEOHead from "@/components/SEOHead";
 import AdSlot from "@/components/AdSlot";
 
@@ -43,6 +55,38 @@ const tools = [
     image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663647949776/NnAk5PzaE2Nv2C9iuzpULH/tool-crop-card-4tBCksd5XnXGkkv2UwAy48.webp",
     gradient: "from-[#BEF264] to-[#10B981]",
     icon: Crop,
+  },
+  {
+    href: "/rotate",
+    title: "Rotate & Flip",
+    description: "Rotate photos and mirror images horizontally or vertically.",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663647949776/NnAk5PzaE2Nv2C9iuzpULH/tool-crop-card-4tBCksd5XnXGkkv2UwAy48.webp",
+    gradient: "from-[#38BDF8] to-[#6366F1]",
+    icon: RotateCw,
+  },
+  {
+    href: "/watermark",
+    title: "Add Watermark",
+    description: "Add text watermarks with custom position, size, color, and opacity.",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663647949776/NnAk5PzaE2Nv2C9iuzpULH/tool-convert-card-5TUprxt8DTmqMVVpr7MQi2.webp",
+    gradient: "from-[#F472B6] to-[#A78BFA]",
+    icon: Stamp,
+  },
+  {
+    href: "/exif",
+    title: "Remove EXIF",
+    description: "Strip hidden metadata and embedded location data from photos.",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663647949776/NnAk5PzaE2Nv2C9iuzpULH/tool-compress-card-aLFL6b4Pgdb7nKAeZYK3Fk.webp",
+    gradient: "from-[#BEF264] to-[#10B981]",
+    icon: Eraser,
+  },
+  {
+    href: "/favicon",
+    title: "Favicon Generator",
+    description: "Create favicon.ico and app icon PNG sizes from a single image.",
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663647949776/NnAk5PzaE2Nv2C9iuzpULH/tool-resize-card-RhnAA5mjinHQ4jJD7JSn2A.webp",
+    gradient: "from-[#FF6B6B] to-[#F472B6]",
+    icon: BadgeIcon,
   },
 ];
 

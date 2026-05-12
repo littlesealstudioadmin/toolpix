@@ -15,4 +15,16 @@
   <url>
     <loc>https://toolpix.manus.space/crop</loc>
   </url>
+  <url>
+    <loc>https://toolpix.manus.space/rotate</loc>
+  </url>
+  <url>
+    <loc>https://toolpix.manus.space/watermark</loc>
+  </url>
+  <url>
+    <loc>https://toolpix.manus.space/exif</loc>
+  </url>
+  <url>
+    <loc>https://toolpix.manus.space/favicon</loc>
+  </url>
 </urlset>

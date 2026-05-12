@@ -87,9 +87,9 @@ export default function Home() {
       />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
+      <section className="relative isolate overflow-hidden py-20 md:py-32">
         {/* Background gradient mesh */}
-        <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 z-0 pointer-events-none">
           <img
             src="https://d2xsxph8kpxj0f.cloudfront.net/310519663647949776/NnAk5PzaE2Nv2C9iuzpULH/hero-gradient-mesh-jkGRcbXsB393s7gVyPbtUb.webp"
             alt=""
@@ -98,7 +98,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background" />
         </div>
 
-        <div className="container">
+        <div className="container relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
